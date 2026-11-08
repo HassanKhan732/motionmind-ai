@@ -24,3 +24,8 @@ An intelligent, gesture-based human-computer interaction (HCI) system combining 
    ```powershell
    python src/tracking/webcam_test.py
    ```
+
+4. **Run hand tracking (Step 2):**
+   ```powershell
+   python src/tracking/hand_tracker.py
+   ```
