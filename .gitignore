@@ -8,6 +8,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Models
+models/*.task
+*.task
+
 # IDE and OS files
 .vscode/
 .idea/

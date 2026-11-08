@@ -166,7 +166,7 @@ Do not begin hand tracking until instructed.
 
 - [x] Step 0: Environment ready
 - [x] Step 1: Live webcam feed
-- [ ] Step 2: Hand landmarks drawn live
+- [x] Step 2: Hand landmarks drawn live
 - [ ] Step 3: FPS counter
 - [ ] Step 4: Basic 3D scene
 - [ ] Step 5: Hand controls the 3D object
