@@ -168,6 +168,6 @@ Do not begin hand tracking until instructed.
 - [x] Step 1: Live webcam feed
 - [x] Step 2: Hand landmarks drawn live
 - [x] Step 3: FPS counter
-- [ ] Step 4: Basic 3D scene
+- [x] Step 4: Basic 3D scene
 - [ ] Step 5: Hand controls the 3D object
 - [ ] Level 1 complete (git tag and short demo)
