@@ -1,6 +1,6 @@
 """
-MotionMind AI - Step 2: Hand Landmarks Drawn Live
-Tracks hands using MediaPipe HandLandmarker Tasks API and visualizes 21 landmarks in real-time.
+MotionMind AI - Step 2 & 3: Hand Landmarks with Real-Time FPS Counter
+Tracks hands using MediaPipe HandLandmarker Tasks API and visualizes 21 landmarks + live FPS.
 """
 
 import os
@@ -57,6 +57,29 @@ def draw_hand_landmarks(frame, hand_landmarks_list):
         )
 
 
+def draw_fps(frame, fps):
+    """Draw a clean FPS overlay with a subtle dark background pill for high contrast."""
+    text = f"FPS: {int(fps)}"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    scale = 0.8
+    thickness = 2
+    x, y = 20, 45
+
+    # Background rectangle for easy readability
+    (text_w, text_h), baseline = cv2.getTextSize(text, font, scale, thickness)
+    cv2.rectangle(
+        frame,
+        (x - 8, y - text_h - 8),
+        (x + text_w + 8, y + baseline + 4),
+        (20, 20, 20),
+        cv2.FILLED,
+    )
+
+    # Color coded: green if >= 30 FPS, yellow/orange if below 30 FPS
+    color = (0, 255, 0) if fps >= 30 else (0, 200, 255)
+    cv2.putText(frame, text, (x, y), font, scale, color, thickness, cv2.LINE_AA)
+
+
 def main():
     camera_index = 0
     cap = cv2.VideoCapture(camera_index)
@@ -69,13 +92,17 @@ def main():
     landmarker = create_hand_landmarker()
     print("Hand tracker started. Press 'q' in the window to quit.")
 
+    # Variables for FPS calculation
+    prev_time = time.time()
+    fps = 0.0
+
     while True:
         ret, frame = cap.read()
         if not ret:
             print("Error: Could not read frame from camera.")
             break
 
-        # Optional: mirror horizontally for natural interaction
+        # Mirror horizontally for natural, intuitive interaction
         frame = cv2.flip(frame, 1)
 
         # Convert BGR (OpenCV) to RGB (MediaPipe)
@@ -92,6 +119,19 @@ def main():
         if detection_result.hand_landmarks:
             draw_hand_landmarks(frame, detection_result.hand_landmarks)
 
+        # Calculate FPS using delta time
+        current_time = time.time()
+        delta_time = current_time - prev_time
+        prev_time = current_time
+
+        if delta_time > 0:
+            instant_fps = 1.0 / delta_time
+            # Exponential smoothing to prevent erratic jitter in the counter
+            fps = 0.9 * fps + 0.1 * instant_fps if fps > 0 else instant_fps
+
+        # Draw the FPS counter on screen
+        draw_fps(frame, fps)
+
         # Display output
         cv2.imshow("MotionMind AI - Hand Tracking", frame)
 
@@ -107,3 +147,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
