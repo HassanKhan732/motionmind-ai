@@ -1,6 +1,6 @@
 /**
  * MotionMind AI - Step 4 & 5: Hand-Controlled 3D Scene
- * Ingests live hand tracking telemetry via WebSocket and prepares 3D transform targets.
+ * Ingests live hand tracking telemetry via WebSocket and binds it to 3D cube with smooth lerping.
  */
 
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
@@ -15,7 +15,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 0, 5);
+camera.position.set(0, 0, 5.5);
 
 const canvas = document.getElementById('canvas-container');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -43,8 +43,9 @@ scene.add(gridHelper);
 const geometry = new THREE.BoxGeometry(1.6, 1.6, 1.6);
 const material = new THREE.MeshStandardMaterial({
   color: 0x0f172a,
-  metalness: 0.8,
-  roughness: 0.2,
+  metalness: 0.85,
+  roughness: 0.25,
+  emissive: 0x002b2b,
 });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
@@ -101,17 +102,17 @@ function connectWebSocket() {
         handState.isTracking = true;
         const t = data.transform;
 
-        // Position
+        // Position targets
         handState.targetPos.x = t.position.x;
         handState.targetPos.y = t.position.y;
         handState.targetPos.z = t.position.z;
 
-        // Rotation
+        // Rotation targets (in radians)
         handState.targetRot.x = t.rotation.x;
         handState.targetRot.y = t.rotation.y;
         handState.targetRot.z = t.rotation.z;
 
-        // Scale
+        // Pinch scale target
         handState.targetScale = t.scale;
 
         // Update UI HUD
@@ -162,14 +163,46 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-// --- 5. Render Loop ---
+// --- 5. Fluid Animation Loop with Linear Interpolation (Lerp) ---
+const LERP_FACTOR = 0.12;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  // If no hand is currently tracking, gently idle-rotate the cube
-  if (!handState.isTracking) {
+  if (handState.isTracking) {
+    // 1. Move Cube (Translation with lerp)
+    cube.position.x += (handState.targetPos.x - cube.position.x) * LERP_FACTOR;
+    cube.position.y += (handState.targetPos.y - cube.position.y) * LERP_FACTOR;
+    cube.position.z += (handState.targetPos.z - cube.position.z) * LERP_FACTOR;
+
+    // 2. Rotate Cube (Orientation with lerp)
+    cube.rotation.x += (handState.targetRot.x - cube.rotation.x) * LERP_FACTOR;
+    cube.rotation.y += (handState.targetRot.y - cube.rotation.y) * LERP_FACTOR;
+    cube.rotation.z += (handState.targetRot.z - cube.rotation.z) * LERP_FACTOR;
+
+    // 3. Scale Cube (Pinch gesture with lerp)
+    const currentScale = cube.scale.x;
+    const newScale = currentScale + (handState.targetScale - currentScale) * LERP_FACTOR;
+    cube.scale.set(newScale, newScale, newScale);
+
+    // Glowing interaction highlight
+    material.emissive.setHex(0x00332a);
+    edgesMaterial.color.setHex(0x00ffcc);
+  } else {
+    // Idle state: return cube gently toward center and rotate calmly
+    cube.position.x += (0 - cube.position.x) * 0.04;
+    cube.position.y += (0 - cube.position.y) * 0.04;
+    cube.position.z += (0 - cube.position.z) * 0.04;
+
     cube.rotation.x += 0.005;
     cube.rotation.y += 0.008;
+
+    const currentScale = cube.scale.x;
+    const idleScale = currentScale + (1.0 - currentScale) * 0.05;
+    cube.scale.set(idleScale, idleScale, idleScale);
+
+    material.emissive.setHex(0x00111a);
+    edgesMaterial.color.setHex(0x38bdf8);
   }
 
   renderer.render(scene, camera);
