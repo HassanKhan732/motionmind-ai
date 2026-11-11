@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MotionMind AI - 3D Scene</title>
+  <title>MotionMind AI - Hand-Controlled 3D Scene</title>
   <style>
     * {
       margin: 0;
@@ -12,55 +12,169 @@
     }
     body {
       overflow: hidden;
-      background-color: #0f111a;
+      background-color: #0a0c14;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #e0e6ed;
+      color: #e2e8f0;
+      user-select: none;
     }
     #canvas-container {
       width: 100vw;
       height: 100vh;
       display: block;
     }
-    #ui-overlay {
+    .hud-panel {
       position: absolute;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 18px;
+      pointer-events: none;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    #top-left-hud {
       top: 20px;
       left: 20px;
-      padding: 14px 18px;
-      background: rgba(15, 17, 26, 0.75);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      pointer-events: none;
+    }
+    #telemetry-hud {
+      top: 130px;
+      left: 20px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      min-width: 240px;
+    }
+    #controls-hud {
+      bottom: 20px;
+      left: 20px;
+      max-width: 320px;
     }
     h1 {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.15rem;
+      font-weight: 700;
       color: #00ffcc;
       margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    p {
-      font-size: 0.85rem;
-      color: #94a3b8;
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 6px;
     }
-    #status-pill {
-      display: inline-block;
+    .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
+      background: #ef4444; /* red default */
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .status-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+    .status-dot.tracking {
       background: #00ffcc;
-      margin-right: 6px;
-      box-shadow: 0 0 8px #00ffcc;
+      box-shadow: 0 0 12px #00ffcc;
+    }
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .telemetry-label {
+      color: #94a3b8;
+    }
+    .telemetry-val {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    .guide-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .guide-pill {
+      font-size: 0.7rem;
+      background: rgba(0, 255, 204, 0.15);
+      color: #00ffcc;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div id="ui-overlay">
-    <h1><span id="status-pill"></span>MotionMind AI - 3D Scene</h1>
-    <p>Step 4: Three.js Foundation (Scene, Camera, Lights, Mesh)</p>
+  <!-- Header HUD -->
+  <div id="top-left-hud" class="hud-panel">
+    <h1>MotionMind AI</h1>
+    <p style="font-size: 0.85rem; color: #94a3b8;">Level 1: Hand-Controlled 3D Interaction</p>
+    <div class="status-badge">
+      <span id="conn-dot" class="status-dot"></span>
+      <span id="conn-text" style="color: #cbd5e1;">WebSocket: Connecting...</span>
+    </div>
   </div>
+
+  <!-- Telemetry HUD -->
+  <div id="telemetry-hud" class="hud-panel">
+    <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+      HAND TELEMETRY
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Status:</span>
+      <span id="val-status" class="telemetry-val" style="color: #f59e0b;">Waiting...</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Position:</span>
+      <span id="val-pos" class="telemetry-val">(0.00, 0.00, 0.00)</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Rotation:</span>
+      <span id="val-rot" class="telemetry-val">(0.00, 0.00, 0.00)</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Scale:</span>
+      <span id="val-scale" class="telemetry-val">1.00x</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Stream FPS:</span>
+      <span id="val-fps" class="telemetry-val">0.0</span>
+    </div>
+  </div>
+
+  <!-- Gesture Controls Guide -->
+  <div id="controls-hud" class="hud-panel">
+    <div style="font-weight: 600; color: #f1f5f9; font-size: 0.85rem; margin-bottom: 4px;">
+      Gesture Controls
+    </div>
+    <div class="guide-item">
+      <span class="guide-pill">Move Hand</span>
+      <span>Translate 3D Cube (X/Y/Z)</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-pill">Tilt Hand</span>
+      <span>Rotate Cube (Pitch/Yaw/Roll)</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-pill">Pinch Fingers</span>
+      <span>Scale 3D Cube (Zoom in/out)</span>
+    </div>
+  </div>
+
+  <!-- 3D Canvas -->
   <canvas id="canvas-container"></canvas>
 
-  <!-- Load Three.js via ES Module -->
+  <!-- Modular Three.js App -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
