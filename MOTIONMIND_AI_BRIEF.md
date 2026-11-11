@@ -169,5 +169,5 @@ Do not begin hand tracking until instructed.
 - [x] Step 2: Hand landmarks drawn live
 - [x] Step 3: FPS counter
 - [x] Step 4: Basic 3D scene
-- [ ] Step 5: Hand controls the 3D object
-- [ ] Level 1 complete (git tag and short demo)
+- [x] Step 5: Hand controls the 3D object
+- [x] Level 1 complete (git tag and short demo)
