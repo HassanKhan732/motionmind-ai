@@ -171,3 +171,6 @@ Do not begin hand tracking until instructed.
 - [x] Step 4: Basic 3D scene
 - [x] Step 5: Hand controls the 3D object
 - [x] Level 1 complete (git tag and short demo)
+- [x] Level 2: Local labeled hand-landmark dataset collection tool
+- [ ] Level 2: Collect and review samples for the target gestures
+- [ ] Level 2: Train and evaluate the gesture classifier

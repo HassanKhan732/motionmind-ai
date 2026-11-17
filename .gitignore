@@ -12,6 +12,9 @@ __pycache__/
 models/*.task
 *.task
 
+# Locally collected gesture datasets
+data/
+
 # IDE and OS files
 .vscode/
 .idea/

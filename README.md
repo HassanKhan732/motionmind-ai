@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 ### 2. Run Automated Unit Tests
 ```powershell
-python -m unittest tests/test_features.py
+python -m unittest tests/test_features.py tests/test_gesture_dataset.py
 ```
 
 ### 3. Run Level 1 (Hand-Controlled 3D Cube)
@@ -52,3 +52,20 @@ python src/tracking/hand_tracker.py
 - **Tilt Hand:** Rotates 3D cube (pitch, yaw, roll).
 - **Pinch Fingers:** Scales 3D cube in real-time.
 - **Press 'q':** Exits tracking window cleanly.
+
+## Collect a Gesture Dataset (Level 2)
+
+The collector saves numeric landmark data locally; it does not save webcam frames
+or video. Each sample is wrist-relative and scaled by the wrist-to-middle-finger
+length, reducing sensitivity to hand position and size.
+
+Run the collector once for each gesture label:
+```powershell
+python src/ml/collect_gestures.py --label open_palm --samples 100
+python src/ml/collect_gestures.py --label fist --samples 100
+```
+
+Samples are appended to `data/gesture_landmarks.csv` by default. Press `q` to stop
+early. Keep the same label for the same gesture each time, and vary lighting and
+viewing conditions between sessions. The `data/` directory is ignored by Git so
+personal samples are not pushed to the repository.
