@@ -63,6 +63,7 @@ export const handState = {
   targetRot: { x: 0, y: 0, z: 0 },
   targetScale: 1.0,
   streamFps: 0.0,
+  gesture: { name: 'None', confidence: 0.0, stable: false },
 };
 
 // UI Element References
@@ -123,6 +124,16 @@ function connectWebSocket() {
         valPos.textContent = `(${t.position.x.toFixed(2)}, ${t.position.y.toFixed(2)}, ${t.position.z.toFixed(2)})`;
         valRot.textContent = `(${t.rotation.x.toFixed(2)}, ${t.rotation.y.toFixed(2)}, ${t.rotation.z.toFixed(2)})`;
         valScale.textContent = `${t.scale.toFixed(2)}x`;
+
+        // Update gesture data if present
+        if (data.gesture) {
+          handState.gesture = data.gesture;
+          const gEl = document.getElementById('val-gesture');
+          if (gEl) {
+            gEl.textContent = `${data.gesture.name} (${(data.gesture.confidence * 100).toFixed(0)}%)`;
+            gEl.style.color = data.gesture.stable ? '#00ffcc' : '#f59e0b';
+          }
+        }
       } else {
         handState.isTracking = false;
         connDot.className = 'status-dot connected';
