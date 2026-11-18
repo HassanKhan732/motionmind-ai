@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from src.features.hand_features import extract_hand_transform
 from src.features.smoothing import TransformSmoother
 from src.tracking.websocket_server import HandStreamServer
+from src.ml.gesture_classifier import RealTimeGestureClassifier
 
 # Path for the MediaPipe task model bundle
 MODEL_DIR = "models"
@@ -65,7 +66,7 @@ def draw_hand_landmarks(frame, hand_landmarks_list):
         )
 
 
-def draw_hud(frame, fps, is_tracking, client_count, transform=None):
+def draw_hud(frame, fps, is_tracking, client_count, transform=None, gesture_info=None):
     """Draw modern telemetry HUD overlay on OpenCV frame."""
     # 1. FPS Badge
     fps_text = f"FPS: {int(fps)}"
@@ -87,7 +88,15 @@ def draw_hud(frame, fps, is_tracking, client_count, transform=None):
     ws_color = (0, 255, 200) if client_count > 0 else (120, 120, 120)
     cv2.putText(frame, ws_text, (ws_x, y - 2), font, 0.55, ws_color, 1, cv2.LINE_AA)
 
-    # 3. Hand Tracking & Transform Telemetry
+    # 3. Gesture Recognition Badge
+    if gesture_info:
+        g_name, g_conf, g_stable = gesture_info
+        badge_color = (0, 255, 0) if g_stable else (0, 200, 255)
+        stability_tag = "STABLE" if g_stable else "..."
+        gesture_text = f"Gesture: {g_name} ({g_conf*100:.0f}%) [{stability_tag}]"
+        cv2.putText(frame, gesture_text, (20, 70), font, 0.65, badge_color, 2, cv2.LINE_AA)
+
+    # 4. Hand Tracking & Transform Telemetry
     if is_tracking and transform:
         pos = transform["position"]
         scale_val = transform["scale"]
@@ -113,6 +122,14 @@ def main():
     ws_server.start()
 
     smoother = TransformSmoother(alpha=0.35)
+
+    # Initialize gesture classifier (graceful fallback if model not found)
+    gesture_clf = None
+    try:
+        gesture_clf = RealTimeGestureClassifier()
+        print("Gesture classifier loaded successfully.")
+    except FileNotFoundError:
+        print("Warning: Gesture model not found. Running without gesture recognition.")
 
     print("Hand tracker started. Streaming to ws://localhost:8765")
     print("Press 'q' in the window to quit.")
@@ -141,6 +158,7 @@ def main():
 
         is_tracking = bool(detection_result.hand_landmarks)
         current_transform = None
+        gesture_info = None
 
         if is_tracking:
             # Draw skeleton landmarks
@@ -151,14 +169,28 @@ def main():
             raw_transform = extract_hand_transform(primary_hand)
             current_transform = smoother.update(raw_transform)
 
+            # Run gesture prediction if classifier is loaded
+            if gesture_clf:
+                g_name, g_conf, g_stable = gesture_clf.predict(primary_hand)
+                gesture_info = (g_name, g_conf, g_stable)
+
             # Stream smoothed payload to Three.js frontend
-            ws_server.broadcast({
+            payload = {
                 "is_tracking": True,
                 "transform": current_transform,
                 "fps": round(fps, 1),
-            })
+            }
+            if gesture_info:
+                payload["gesture"] = {
+                    "name": gesture_info[0],
+                    "confidence": gesture_info[1],
+                    "stable": gesture_info[2],
+                }
+            ws_server.broadcast(payload)
         else:
             smoother.reset()
+            if gesture_clf:
+                gesture_clf.reset()
             ws_server.broadcast({
                 "is_tracking": False,
                 "fps": round(fps, 1),
@@ -175,7 +207,7 @@ def main():
 
         # Draw HUD overlays
         client_count = len(ws_server.clients)
-        draw_hud(frame, fps, is_tracking, client_count, current_transform)
+        draw_hud(frame, fps, is_tracking, client_count, current_transform, gesture_info)
 
         # Display window
         cv2.imshow("MotionMind AI - Hand Tracking", frame)
