@@ -41,19 +41,19 @@ def build_candidate_models():
     """Define candidate ML models for benchmarking."""
     return {
         "RandomForest": RandomForestClassifier(
-            n_estimators=100,
-            max_depth=16,
-            min_samples_split=3,
+            n_estimators=200,
+            max_depth=25,
+            min_samples_split=2,
             random_state=42,
             n_jobs=-1
         ),
         "SVM_RBF": Pipeline([
             ("scaler", StandardScaler()),
-            ("svm", SVC(C=10.0, kernel="rbf", probability=True, random_state=42))
+            ("svm", SVC(C=25.0, gamma="scale", kernel="rbf", random_state=42))
         ]),
         "MLP_NeuralNet": Pipeline([
             ("scaler", StandardScaler()),
-            ("mlp", MLPClassifier(hidden_layer_sizes=(128, 64), max_iter=350, random_state=42, early_stopping=True))
+            ("mlp", MLPClassifier(hidden_layer_sizes=(256, 128), max_iter=450, random_state=42, early_stopping=False))
         ]),
     }
 
