@@ -1,0 +1,33 @@
+{
+  "iterations": 100,
+  "feature_extraction": {
+    "mean_ms": 0.041,
+    "median_ms": 0.041,
+    "p95_ms": 0.042,
+    "min_ms": 0.04,
+    "max_ms": 0.076
+  },
+  "classifier_inference": {
+    "mean_ms": 18.067,
+    "median_ms": 16.216,
+    "p95_ms": 25.128,
+    "min_ms": 13.151,
+    "max_ms": 88.053
+  },
+  "end_to_end_pipeline": {
+    "mean_ms": 19.989,
+    "median_ms": 17.122,
+    "p95_ms": 45.052,
+    "min_ms": 13.35,
+    "max_ms": 81.787
+  },
+  "theoretical_max_fps": 50.0,
+  "targets": {
+    "target_fps": 30.0,
+    "achieved_fps": 50.0,
+    "fps_target_passed": true,
+    "target_max_latency_ms": 50.0,
+    "achieved_latency_ms": 19.989,
+    "latency_target_passed": true
+  }
+}

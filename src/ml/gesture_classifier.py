@@ -30,6 +30,8 @@ class RealTimeGestureClassifier:
             raise FileNotFoundError(f"Trained model not found at {model_path}. Train the model first.")
 
         self.model = joblib.load(model_path)
+        if hasattr(self.model, "n_jobs"):
+            self.model.n_jobs = 1
         self.min_confidence = min_confidence
         self.history_len = history_len
         self.required_consensus = required_consensus
