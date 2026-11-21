@@ -1,0 +1,122 @@
+{
+  "baseline_clean": {
+    "condition": "Clean Canonical Baseline",
+    "total_tested": 640,
+    "correct": 600,
+    "accuracy": 0.9375,
+    "per_class_accuracy": {
+      "Open Palm": 1.0,
+      "Fist": 1.0,
+      "Peace": 1.0,
+      "Thumbs Up": 1.0,
+      "Thumbs Down": 1.0,
+      "OK Sign": 1.0,
+      "Pointing": 1.0,
+      "Rock Horns": 1.0,
+      "Call Me": 1.0,
+      "Hand Gun": 1.0,
+      "Pinch": 1.0,
+      "Three": 1.0,
+      "Four": 1.0,
+      "Stop Sign": 0.0,
+      "PSL Salaam": 1.0,
+      "PSL Shukriya": 1.0
+    }
+  },
+  "rotation_stress": {
+    "condition": "3D Rotation (+/-25 deg)",
+    "total_tested": 640,
+    "correct": 596,
+    "accuracy": 0.9313,
+    "per_class_accuracy": {
+      "Open Palm": 0.45,
+      "Fist": 1.0,
+      "Peace": 1.0,
+      "Thumbs Up": 1.0,
+      "Thumbs Down": 1.0,
+      "OK Sign": 1.0,
+      "Pointing": 1.0,
+      "Rock Horns": 1.0,
+      "Call Me": 1.0,
+      "Hand Gun": 1.0,
+      "Pinch": 1.0,
+      "Three": 1.0,
+      "Four": 1.0,
+      "Stop Sign": 0.45,
+      "PSL Salaam": 1.0,
+      "PSL Shukriya": 1.0
+    }
+  },
+  "scale_stress": {
+    "condition": "Scale Variation (0.7x-1.35x)",
+    "total_tested": 640,
+    "correct": 600,
+    "accuracy": 0.9375,
+    "per_class_accuracy": {
+      "Open Palm": 1.0,
+      "Fist": 1.0,
+      "Peace": 1.0,
+      "Thumbs Up": 1.0,
+      "Thumbs Down": 1.0,
+      "OK Sign": 1.0,
+      "Pointing": 1.0,
+      "Rock Horns": 1.0,
+      "Call Me": 1.0,
+      "Hand Gun": 1.0,
+      "Pinch": 1.0,
+      "Three": 1.0,
+      "Four": 1.0,
+      "Stop Sign": 0.0,
+      "PSL Salaam": 1.0,
+      "PSL Shukriya": 1.0
+    }
+  },
+  "jitter_stress": {
+    "condition": "Lighting / Sensor Jitter",
+    "total_tested": 640,
+    "correct": 598,
+    "accuracy": 0.9344,
+    "per_class_accuracy": {
+      "Open Palm": 0.6,
+      "Fist": 1.0,
+      "Peace": 1.0,
+      "Thumbs Up": 1.0,
+      "Thumbs Down": 1.0,
+      "OK Sign": 1.0,
+      "Pointing": 1.0,
+      "Rock Horns": 1.0,
+      "Call Me": 1.0,
+      "Hand Gun": 1.0,
+      "Pinch": 1.0,
+      "Three": 1.0,
+      "Four": 1.0,
+      "Stop Sign": 0.35,
+      "PSL Salaam": 1.0,
+      "PSL Shukriya": 1.0
+    }
+  },
+  "combined_stress": {
+    "condition": "Combined Real-World Stress",
+    "total_tested": 640,
+    "correct": 603,
+    "accuracy": 0.9422,
+    "per_class_accuracy": {
+      "Open Palm": 0.65,
+      "Fist": 1.0,
+      "Peace": 1.0,
+      "Thumbs Up": 1.0,
+      "Thumbs Down": 1.0,
+      "OK Sign": 1.0,
+      "Pointing": 1.0,
+      "Rock Horns": 1.0,
+      "Call Me": 1.0,
+      "Hand Gun": 1.0,
+      "Pinch": 1.0,
+      "Three": 1.0,
+      "Four": 1.0,
+      "Stop Sign": 0.425,
+      "PSL Salaam": 1.0,
+      "PSL Shukriya": 1.0
+    }
+  }
+}
