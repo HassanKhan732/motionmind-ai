@@ -56,6 +56,29 @@ const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ffcc, linewidth: 
 const wireframe = new THREE.LineSegments(edges, edgesMaterial);
 cube.add(wireframe);
 
+// 3D Orbiting Particle Aura
+const particleCount = 200;
+const particleGeometry = new THREE.BufferGeometry();
+const particlePositions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  const r = 2.2 + Math.random() * 0.8;
+  particlePositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+  particlePositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+  particlePositions[i * 3 + 2] = r * Math.cos(phi);
+}
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+const particleMaterial = new THREE.PointsMaterial({
+  color: 0x00ffcc,
+  size: 0.06,
+  transparent: true,
+  opacity: 0.75,
+  blending: THREE.AdditiveBlending,
+});
+const particleCloud = new THREE.Points(particleGeometry, particleMaterial);
+scene.add(particleCloud);
+
 // --- 2. Live Telemetry State ---
 export const handState = {
   isTracking: false,
@@ -133,12 +156,22 @@ function connectWebSocket() {
             gEl.textContent = `${data.gesture.name} (${(data.gesture.confidence * 100).toFixed(0)}%)`;
             gEl.style.color = data.gesture.stable ? '#00ffcc' : '#f59e0b';
           }
+          const actEl = document.getElementById('val-action');
+          if (actEl) {
+            actEl.textContent = data.gesture.action || (data.gesture.stable ? 'ACTIVE' : 'DEBOUNCING');
+            actEl.style.color = data.gesture.stable ? '#a855f7' : '#94a3b8';
+          }
         }
       } else {
         handState.isTracking = false;
         connDot.className = 'status-dot connected';
         valStatus.textContent = 'Searching...';
         valStatus.style.color = '#f59e0b';
+        const actEl = document.getElementById('val-action');
+        if (actEl) {
+          actEl.textContent = 'IDLE';
+          actEl.style.color = '#94a3b8';
+        }
       }
     } catch (err) {
       console.error('[WebSocket] Failed to parse message:', err);
@@ -196,9 +229,28 @@ function animate() {
     const newScale = currentScale + (handState.targetScale - currentScale) * LERP_FACTOR;
     cube.scale.set(newScale, newScale, newScale);
 
-    // Glowing interaction highlight
-    material.emissive.setHex(0x00332a);
-    edgesMaterial.color.setHex(0x00ffcc);
+    // Dynamic gesture color response
+    const gestureName = handState.gesture ? handState.gesture.name : "None";
+    let themeColor = 0x00ffcc; // Default cyan
+    let emissiveColor = 0x00332a;
+
+    if (gestureName === "Peace" || gestureName === "Rock Horns") {
+      themeColor = 0xc084fc; // Neon purple
+      emissiveColor = 0x3b0764;
+    } else if (gestureName === "Thumbs Up" || gestureName === "OK Sign") {
+      themeColor = 0x10b981; // Emerald green
+      emissiveColor = 0x064e3b;
+    } else if (gestureName === "Fist" || gestureName === "Stop Sign") {
+      themeColor = 0xef4444; // Crimson
+      emissiveColor = 0x450a0a;
+    } else if (gestureName.startsWith("PSL")) {
+      themeColor = 0xfbbf24; // Warm amber/gold
+      emissiveColor = 0x451a03;
+    }
+
+    material.emissive.setHex(emissiveColor);
+    edgesMaterial.color.setHex(themeColor);
+    particleMaterial.color.setHex(themeColor);
   } else {
     // Idle state: return cube gently toward center and rotate calmly
     cube.position.x += (0 - cube.position.x) * 0.04;
@@ -214,7 +266,13 @@ function animate() {
 
     material.emissive.setHex(0x00111a);
     edgesMaterial.color.setHex(0x38bdf8);
+    particleMaterial.color.setHex(0x00ffcc);
   }
+
+  // Smoothly orbit background particle field
+  particleCloud.rotation.y += 0.002;
+  particleCloud.rotation.x += 0.001;
+  particleCloud.position.copy(cube.position);
 
   renderer.render(scene, camera);
 }

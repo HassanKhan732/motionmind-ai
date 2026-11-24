@@ -118,7 +118,7 @@
   <!-- Header HUD -->
   <div id="top-left-hud" class="hud-panel">
     <h1>MotionMind AI</h1>
-    <p style="font-size: 0.85rem; color: #94a3b8;">Level 1: Hand-Controlled 3D Interaction</p>
+    <p style="font-size: 0.85rem; color: #94a3b8;">Level 2: Real-Time Gesture Intelligence & 3D Interface</p>
     <div class="status-badge">
       <span id="conn-dot" class="status-dot"></span>
       <span id="conn-text" style="color: #cbd5e1;">WebSocket: Connecting...</span>
@@ -128,7 +128,7 @@
   <!-- Telemetry HUD -->
   <div id="telemetry-hud" class="hud-panel">
     <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-      HAND TELEMETRY
+      HAND & GESTURE TELEMETRY
     </div>
     <div class="telemetry-row">
       <span class="telemetry-label">Status:</span>
@@ -153,6 +153,10 @@
     <div class="telemetry-row">
       <span class="telemetry-label">Gesture:</span>
       <span id="val-gesture" class="telemetry-val" style="color: #f59e0b;">None</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">Action State:</span>
+      <span id="val-action" class="telemetry-val" style="color: #a855f7;">IDLE</span>
     </div>
   </div>
 
