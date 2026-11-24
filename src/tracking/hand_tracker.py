@@ -19,6 +19,7 @@ from src.features.hand_features import extract_hand_transform
 from src.features.smoothing import TransformSmoother
 from src.tracking.websocket_server import HandStreamServer
 from src.ml.gesture_classifier import RealTimeGestureClassifier
+from src.ml.gesture_actions import GestureActionDispatcher
 
 # Path for the MediaPipe task model bundle
 MODEL_DIR = "models"
@@ -90,11 +91,14 @@ def draw_hud(frame, fps, is_tracking, client_count, transform=None, gesture_info
 
     # 3. Gesture Recognition Badge
     if gesture_info:
-        g_name, g_conf, g_stable = gesture_info
+        g_name = gesture_info[0]
+        g_conf = gesture_info[1]
+        g_stable = gesture_info[2]
+        g_action = gesture_info[3] if len(gesture_info) > 3 else "IDLE"
         badge_color = (0, 255, 0) if g_stable else (0, 200, 255)
         stability_tag = "STABLE" if g_stable else "..."
-        gesture_text = f"Gesture: {g_name} ({g_conf*100:.0f}%) [{stability_tag}]"
-        cv2.putText(frame, gesture_text, (20, 70), font, 0.65, badge_color, 2, cv2.LINE_AA)
+        gesture_text = f"Gesture: {g_name} ({g_conf*100:.0f}%) [{stability_tag}] | Act: {g_action}"
+        cv2.putText(frame, gesture_text, (20, 70), font, 0.60, badge_color, 2, cv2.LINE_AA)
 
     # 4. Hand Tracking & Transform Telemetry
     if is_tracking and transform:
@@ -122,6 +126,7 @@ def main():
     ws_server.start()
 
     smoother = TransformSmoother(alpha=0.35)
+    action_dispatcher = GestureActionDispatcher(default_cooldown_sec=1.0)
 
     # Initialize gesture classifier (graceful fallback if model not found)
     gesture_clf = None
@@ -172,7 +177,9 @@ def main():
             # Run gesture prediction if classifier is loaded
             if gesture_clf:
                 g_name, g_conf, g_stable = gesture_clf.predict(primary_hand)
-                gesture_info = (g_name, g_conf, g_stable)
+                triggered_action = action_dispatcher.process_gesture(g_name, g_stable, g_conf)
+                active_action = triggered_action or (action_dispatcher.get_action_for_gesture(g_name) if g_stable else "IDLE")
+                gesture_info = (g_name, g_conf, g_stable, active_action)
 
             # Stream smoothed payload to Three.js frontend
             payload = {
@@ -185,6 +192,7 @@ def main():
                     "name": gesture_info[0],
                     "confidence": gesture_info[1],
                     "stable": gesture_info[2],
+                    "action": gesture_info[3],
                 }
             ws_server.broadcast(payload)
         else:
