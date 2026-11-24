@@ -1,0 +1,30 @@
+{
+  "model_type": "RandomForestClassifier",
+  "classes": [
+    "Open Palm",
+    "Fist",
+    "Peace",
+    "Thumbs Up",
+    "Thumbs Down",
+    "OK Sign",
+    "Pointing",
+    "Rock Horns",
+    "Call Me",
+    "Hand Gun",
+    "Pinch",
+    "Three",
+    "Four",
+    "Stop Sign",
+    "PSL Salaam",
+    "PSL Shukriya"
+  ],
+  "num_classes": 16,
+  "expected_feature_dim": 75,
+  "source_file": "models/gesture_classifier.joblib",
+  "file_size_kb": 9716.49,
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 25,
+    "min_samples_split": 2
+  }
+}
