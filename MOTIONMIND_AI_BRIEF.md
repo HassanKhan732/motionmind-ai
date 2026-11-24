@@ -172,5 +172,9 @@ Do not begin hand tracking until instructed.
 - [x] Step 5: Hand controls the 3D object
 - [x] Level 1 complete (git tag and short demo)
 - [x] Level 2: Local labeled hand-landmark dataset collection tool
-- [ ] Level 2: Collect and review samples for the target gestures
-- [ ] Level 2: Train and evaluate the gesture classifier
+- [x] Level 2: Collect and review samples for the target gestures
+- [x] Level 2: Train and evaluate the gesture classifier
+- [x] Level 2 complete (git tag v0.2-level2, evaluation report, and live demo)
+- [ ] Level 3: Temporal sliding window and velocity feature pipeline
+- [ ] Level 3: Movement-based gesture dataset (swipe, circle, wave)
+- [ ] Level 3: Train and evaluate temporal sequence model (LSTM / Transformer)

@@ -53,6 +53,39 @@ python src/tracking/hand_tracker.py
 - **Pinch Fingers:** Scales 3D cube in real-time.
 - **Press 'q':** Exits tracking window cleanly.
 
+## Level 2: Machine Learning & Gesture Intelligence (Completed)
+
+Level 2 introduces a trained ensemble Random Forest classifier recognizing **16 custom static gestures** (including Pakistani Sign Language signs) with **94.88% accuracy**, achieving sub-20ms latency and 50 FPS throughput.
+
+### 1. Run the Level 2 Interactive Demo
+```powershell
+# Run simulated benchmark sequence with ASCII telemetry & WebSocket stream:
+python demo_level2.py --simulate
+
+# Or run live with webcam:
+python demo_level2.py --webcam
+```
+
+### 2. Unified CLI Interface
+```powershell
+python src/cli.py demo --simulate     # Run simulation demo
+python src/cli.py track               # Launch webcam tracking & WebSocket server
+python src/cli.py inspect             # Inspect dataset health and class balance
+python src/cli.py benchmark           # Profile latency and max engine FPS
+python src/cli.py robustness          # Run 3D rotation, scale & noise stress tests
+python src/cli.py psl                 # View Pakistani Sign Language dictionary
+```
+
+### 3. Run Automated Tests
+```powershell
+python -m unittest discover tests
+```
+
+### 4. Milestone Evaluation Report
+Detailed metrics, confusion matrix, feature formulas, and benchmark tables are available in:
+- [docs/LEVEL_2_REPORT.md](file:///c:/Users/FUJITSU/Desktop/motionmind-ai/docs/LEVEL_2_REPORT.md)
+- [docs/PSL_CURRICULUM.md](file:///c:/Users/FUJITSU/Desktop/motionmind-ai/docs/PSL_CURRICULUM.md)
+
 ## Collect a Gesture Dataset (Level 2)
 
 The collector saves numeric landmark data locally; it does not save webcam frames
