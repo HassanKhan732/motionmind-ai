@@ -72,7 +72,7 @@ class HandStreamServer:
 
         try:
             self.loop.run_until_complete(run_server())
-        except Exception:
+        except (asyncio.CancelledError, Exception):
             pass
 
     def start(self):
@@ -87,4 +87,7 @@ class HandStreamServer:
         """Stop server and clean up loop."""
         self.is_running = False
         if self.loop and self.loop.is_running():
-            self.loop.call_soon_threadsafe(self.loop.stop)
+            try:
+                self.loop.call_soon_threadsafe(self.loop.stop)
+            except Exception:
+                pass
